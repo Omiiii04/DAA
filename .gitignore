@@ -1,0 +1,95 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Historic Stock Market Peak Analyzer — .gitignore
+# Stack: Python 3.12 / FastAPI / SQLite  +  React / Vite 6 / npm
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]          # .pyc .pyo .pyd
+*.pyd
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+*.whl
+
+# ── Environment & secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example      # Keep the example template if one is added
+
+
+# ── Database ──────────────────────────────────────────────────────────────────
+# SQLite database created on first backend startup
+backend/stock_analyzer.db
+backend/stock_analyzer.db-shm   # WAL shared-memory file
+backend/stock_analyzer.db-wal   # WAL write-ahead log
+
+
+# ── Generated data files ──────────────────────────────────────────────────────
+# .npy price arrays written by DatasetGenerator and FileParser
+backend/data/datasets/
+
+# joblib-serialised ML model artifacts written by MLTrainer
+backend/data/ml_models/
+
+# Keep the data/ directory itself (auto-created by config.py at startup)
+# but ignore its contents so the folder is tracked via a .gitkeep if needed.
+backend/data/*
+!backend/data/.gitkeep
+
+
+# ── Test & coverage artefacts ─────────────────────────────────────────────────
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+
+# ── Node / npm ────────────────────────────────────────────────────────────────
+frontend/node_modules/
+
+# Vite production build output
+frontend/dist/
+
+# Vite cache
+frontend/.vite/
+frontend/.cache/
+
+# npm debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# ── Editor & OS ───────────────────────────────────────────────────────────────
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs (PyCharm, WebStorm, …)
+.idea/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log

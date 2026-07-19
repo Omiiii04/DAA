@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Historic Stock Market Peak Analyzer — Backend Dependencies
+# Python 3.12+  |  pip install -r requirements.txt
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Web Framework ─────────────────────────────────────────────────────────────
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+
+# ── Database ──────────────────────────────────────────────────────────────────
+sqlalchemy>=2.0.0
+
+# ── Validation / Settings ─────────────────────────────────────────────────────
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# ── Data Science ──────────────────────────────────────────────────────────────
+pandas>=2.0.0
+numpy>=1.26.0
+
+# ── Benchmarking & Memory Profiling ───────────────────────────────────────────
+memory-profiler>=0.61.0
+psutil>=5.9.0
+
+# ── File Upload Support ────────────────────────────────────────────────────────
+python-multipart>=0.0.6
+aiofiles>=23.2.0
+openpyxl>=3.1.0          # XLSX parsing via pandas
+
+# ── PDF Report Generation (Phase 5) ───────────────────────────────────────────
+reportlab>=4.0.0
+
+# ── Machine Learning (Phase 6) ────────────────────────────────────────────────
+scikit-learn>=1.4.0           # IsolationForest, KMeans, GradientBoosting
+joblib>=1.3.0                 # Model artifact serialization (bundled w/ sklearn)
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+httpx>=0.27.0          # Async test client for FastAPI
