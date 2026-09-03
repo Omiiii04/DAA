@@ -11,7 +11,6 @@
  */
 
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, AlertTriangle, CheckCircle, XCircle, Loader, SkipForward } from 'lucide-react'
 import { getSweepConfig, startSweep } from '../../api/complexity'
 import { useSweepPoller } from '../../hooks/useSweepPoller'
@@ -26,8 +25,8 @@ const ALGO_COLORS = {
 }
 
 const STATUS_ICON = {
-  pending:   <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>○</span>,
-  running:   <Loader size={13} style={{ animation: 'spin 1s linear infinite', color: 'var(--primary)' }} />,
+  pending:   <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>○</span>,
+  running:   <Loader size={12} style={{ animation: 'spin 1s linear infinite', color: 'var(--primary)' }} />,
   done:      <CheckCircle size={13} color="var(--success)" />,
   skipped:   <SkipForward size={13} color="var(--text-muted)" />,
   error:     <XCircle size={13} color="var(--danger)" />,
@@ -47,17 +46,18 @@ function SizeToggle({ size, selected, onToggle }) {
     <button
       type="button"
       onClick={() => onToggle(size)}
+      aria-pressed={selected}
       style={{
-        padding: '7px 12px',
+        padding: '6px 12px',
         borderRadius: 'var(--radius)',
-        border: `1.5px solid ${selected ? 'var(--primary)' : 'var(--border)'}`,
+        border: `1px solid ${selected ? 'var(--primary)' : 'var(--border-strong)'}`,
         background: selected ? 'var(--primary-dim)' : 'var(--bg-surface-2)',
-        color: selected ? 'var(--primary-light)' : 'var(--text-muted)',
+        color: selected ? '#ffffff' : 'var(--text-secondary)',
         fontFamily: 'var(--font-mono)',
         fontSize: '0.8125rem',
-        fontWeight: selected ? 700 : 400,
+        fontWeight: selected ? 600 : 400,
         cursor: 'pointer',
-        transition: 'all 0.15s ease',
+        transition: 'background-color var(--transition-fast), border-color var(--transition-fast)',
       }}
     >
       {size >= 1000 ? `${(size / 1000).toFixed(0)}K` : size}
@@ -70,15 +70,15 @@ function StepMatrix({ steps, algorithms, sizes }) {
   if (!steps?.length) return null
 
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 2px' }}>
+    <div className="table-wrapper">
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
         <thead>
-          <tr>
-            <th style={{ textAlign: 'left', fontSize: '0.7rem', color: 'var(--text-muted)', padding: '4px 10px', fontWeight: 600 }}>
+          <tr style={{ background: 'var(--bg-surface-2)', borderBottom: '1px solid var(--border)' }}>
+            <th style={{ textAlign: 'left', fontSize: '0.72rem', color: 'var(--text-muted)', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase' }}>
               Algorithm
             </th>
             {sizes.map((sz) => (
-              <th key={sz} style={{ textAlign: 'center', fontSize: '0.7rem', color: 'var(--text-muted)', padding: '4px 8px', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>
+              <th key={sz} style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-muted)', padding: '8px 10px', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>
                 N={sz >= 1000 ? `${sz / 1000}K` : sz}
               </th>
             ))}
@@ -86,27 +86,27 @@ function StepMatrix({ steps, algorithms, sizes }) {
         </thead>
         <tbody>
           {algorithms.map((algo) => {
-            const color = ALGO_COLORS[algo] ?? '#94a3b8'
+            const color = ALGO_COLORS[algo] ?? 'var(--text-primary)'
             return (
-              <tr key={algo} style={{ background: 'var(--bg-surface-2)', borderRadius: 'var(--radius)' }}>
-                <td style={{ padding: '6px 10px', fontSize: '0.8125rem', fontWeight: 600, color }}>
+              <tr key={algo} style={{ borderBottom: '1px solid var(--border)' }}>
+                <td style={{ padding: '8px 12px', fontSize: '0.8125rem', fontWeight: 600, color }}>
                   {algo}
                 </td>
                 {sizes.map((sz) => {
                   const step = steps.find((s) => s.size === sz && s.algorithm === algo)
                   return (
-                    <td key={sz} style={{ textAlign: 'center', padding: '6px 8px' }}>
+                    <td key={sz} style={{ textAlign: 'center', padding: '8px 10px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 2 }}>
                         {STATUS_ICON[step?.status ?? 'pending']}
                         {step?.status === 'done' && step.mean_ms > 0 && (
-                          <div style={{ fontSize: '0.65rem', fontFamily: 'var(--font-mono)', color, lineHeight: 1.2 }}>
+                          <div style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono)', color, lineHeight: 1.1 }}>
                             {step.mean_ms < 1
                               ? `${(step.mean_ms * 1000).toFixed(0)}µs`
                               : `${step.mean_ms.toFixed(2)}ms`}
                           </div>
                         )}
                         {step?.status === 'error' && (
-                          <div style={{ fontSize: '0.6rem', color: 'var(--danger)' }} title={step.error}>ERR</div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--danger)' }} title={step.error}>ERR</div>
                         )}
                       </div>
                     </td>
@@ -125,32 +125,35 @@ function StepMatrix({ steps, algorithms, sizes }) {
 function FitnessChips({ analyses }) {
   if (!analyses || Object.keys(analyses).length === 0) return null
   return (
-    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
       {Object.entries(analyses).map(([name, a]) => {
         const pct = Math.round((a.fitness_score ?? 0) * 100)
-        const color = ALGO_COLORS[name] ?? '#94a3b8'
+        const color = ALGO_COLORS[name] ?? 'var(--primary)'
         const barColor = pct >= 85 ? 'var(--success)' : pct >= 60 ? 'var(--warning)' : 'var(--danger)'
         return (
           <div key={name} style={{
             background: 'var(--bg-surface-2)',
-            border: `1px solid ${color}25`,
+            border: `1px solid var(--border)`,
+            borderLeft: `3px solid ${color}`,
             borderRadius: 'var(--radius)',
-            padding: '10px 14px',
+            padding: '8px 12px',
             minWidth: 140,
+            flex: '1 1 140px',
           }}>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 4 }}>{name}</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 6 }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.25rem', color }}>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 2 }}>{name}</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '1.1rem', color }}>
                 {pct}%
               </span>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>fit</span>
+              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>fit</span>
             </div>
-            <div style={{ height: 4, background: 'var(--bg-surface-3)', borderRadius: 999 }}>
+            <div style={{ height: 4, background: 'var(--bg-surface-3)', borderRadius: 999, overflow: 'hidden' }}>
               <div style={{
-                height: '100%', width: `${pct}%`,
+                height: '100%',
+                width: `${pct}%`,
                 background: barColor,
                 borderRadius: 999,
-                transition: 'width 0.4s ease',
+                transition: 'width 0.3s ease',
               }} />
             </div>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: 4, fontFamily: 'var(--font-mono)' }}>
@@ -165,27 +168,29 @@ function FitnessChips({ analyses }) {
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function SweepPanel({ onSweepComplete }) {
-  const [config,      setConfig]      = useState(null)
-  const [sizes,       setSizes]       = useState([1_000, 5_000, 10_000, 20_000, 50_000])
-  const [algorithms,  setAlgorithms]  = useState(['Brute Force', 'Divide & Conquer', "Kadane's Algorithm"])
-  const [distribution, setDist]       = useState('random')
-  const [jobId,       setJobId]       = useState(null)
-  const [launching,   setLaunching]   = useState(false)
-  const [launchError, setLaunchError] = useState(null)
+  const [config,        setConfig]      = useState(null)
+  const [sizes,         setSizes]       = useState([1_000, 5_000, 10_000, 20_000, 50_000])
+  const [algorithms,    setAlgorithms]  = useState(['Brute Force', 'Divide & Conquer', "Kadane's Algorithm"])
+  const [distribution,  setDist]        = useState('random')
+  const [jobId,         setJobId]       = useState(null)
+  const [launching,     setLaunching]   = useState(false)
+  const [launchError,   setLaunchError] = useState(null)
 
   const { job, error: pollError } = useSweepPoller(jobId, 1500)
 
   // Load config on mount
   useEffect(() => {
-    getSweepConfig().then(setConfig).catch(() => {})
+    getSweepConfig()
+      .then(setConfig)
+      .catch(() => {})
   }, [])
 
   // Notify parent when sweep completes
   useEffect(() => {
-    if (job?.status === 'completed') {
+    if (job?.status === 'completed' && job.analyses) {
       onSweepComplete?.(job.analyses)
     }
-  }, [job?.status])
+  }, [job?.status, job?.analyses, onSweepComplete])
 
   const toggleSize = (size) => {
     setSizes((prev) =>
@@ -200,7 +205,7 @@ export default function SweepPanel({ onSweepComplete }) {
   }
 
   const handleLaunch = async () => {
-    if (sizes.length === 0 || algorithms.length === 0) return
+    if (sizes.length === 0 || algorithms.length === 0 || launching) return
     setLaunching(true)
     setLaunchError(null)
     setJobId(null)
@@ -213,7 +218,7 @@ export default function SweepPanel({ onSweepComplete }) {
       })
       setJobId(result.job_id)
     } catch (err) {
-      setLaunchError(err.response?.data?.detail ?? err.message)
+      setLaunchError(err.response?.data?.detail ?? err.message ?? 'Failed to launch sweep.')
     } finally {
       setLaunching(false)
     }
@@ -226,15 +231,15 @@ export default function SweepPanel({ onSweepComplete }) {
   const allSizes = config?.recommended_sizes ?? [1_000, 5_000, 10_000, 20_000, 50_000, 100_000]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
       {/* ── Config Area ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
         {/* Size Selection */}
         <div>
-          <label className="form-label" style={{ marginBottom: 8, display: 'block' }}>
-            Dataset Sizes
+          <label className="form-label" style={{ marginBottom: 6, display: 'block' }}>
+            Dataset Sizes to Benchmark
           </label>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {allSizes.map((sz) => (
@@ -242,35 +247,38 @@ export default function SweepPanel({ onSweepComplete }) {
             ))}
           </div>
           {hasBFSizeOverLimit && (
-            <div style={{ marginTop: 8, display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: '0.75rem', color: 'var(--warning)' }}>
-              <AlertTriangle size={12} style={{ marginTop: 1, flexShrink: 0 }} />
-              Brute Force will be auto-skipped for N &gt; {BF_MAX.toLocaleString()} (O(N²) safety limit).
+            <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--warning)' }}>
+              <AlertTriangle size={13} style={{ flexShrink: 0 }} />
+              <span>Brute Force will be skipped for N &gt; {BF_MAX.toLocaleString()} (O(N²) quadratic safety limit).</span>
             </div>
           )}
         </div>
 
         {/* Algorithms */}
         <div>
-          <label className="form-label" style={{ marginBottom: 8, display: 'block' }}>Algorithms</label>
+          <label className="form-label" style={{ marginBottom: 6, display: 'block' }}>
+            Included Algorithms
+          </label>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {(config?.algorithms ?? ['Brute Force', 'Divide & Conquer', "Kadane's Algorithm"]).map((algo) => {
               const selected = algorithms.includes(algo)
-              const color = ALGO_COLORS[algo] ?? '#94a3b8'
+              const color = ALGO_COLORS[algo] ?? 'var(--primary)'
               return (
                 <button
                   key={algo}
                   type="button"
                   onClick={() => toggleAlgo(algo)}
+                  aria-pressed={selected}
                   style={{
-                    padding: '6px 14px',
+                    padding: '6px 12px',
                     borderRadius: 'var(--radius)',
-                    border: `1.5px solid ${selected ? color : 'var(--border)'}`,
-                    background: selected ? `${color}15` : 'var(--bg-surface-2)',
+                    border: `1px solid ${selected ? color : 'var(--border-strong)'}`,
+                    background: selected ? 'var(--bg-surface-3)' : 'var(--bg-surface-2)',
                     color: selected ? color : 'var(--text-muted)',
                     fontSize: '0.8125rem',
-                    fontWeight: selected ? 700 : 400,
+                    fontWeight: selected ? 600 : 400,
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease',
+                    transition: 'border-color var(--transition-fast), background-color var(--transition-fast)',
                   }}
                 >
                   {algo}
@@ -280,14 +288,15 @@ export default function SweepPanel({ onSweepComplete }) {
           </div>
         </div>
 
-        {/* Distribution */}
+        {/* Distribution Selection */}
         <div className="form-group">
-          <label className="form-label">GBM Distribution Profile</label>
+          <label htmlFor="sweep-distribution-select" className="form-label">Price Distribution Pattern</label>
           <select
+            id="sweep-distribution-select"
             className="form-select"
             value={distribution}
             onChange={(e) => setDist(e.target.value)}
-            style={{ maxWidth: 260 }}
+            style={{ maxWidth: 280 }}
           >
             {Object.entries(DISTRIBUTION_LABELS).map(([v, l]) => (
               <option key={v} value={v}>{l}</option>
@@ -296,10 +305,10 @@ export default function SweepPanel({ onSweepComplete }) {
         </div>
 
         {launchError && (
-          <div className="panel panel-danger" style={{ fontSize: '0.875rem' }}>{launchError}</div>
+          <div className="panel panel-danger" style={{ fontSize: '0.8125rem' }}>{launchError}</div>
         )}
         {pollError && (
-          <div className="panel panel-danger" style={{ fontSize: '0.875rem' }}>{pollError}</div>
+          <div className="panel panel-danger" style={{ fontSize: '0.8125rem' }}>{pollError}</div>
         )}
 
         <button
@@ -308,67 +317,59 @@ export default function SweepPanel({ onSweepComplete }) {
           disabled={isRunning || sizes.length === 0 || algorithms.length === 0}
           style={{ alignSelf: 'flex-start', gap: 8 }}
         >
-          {launching ? <Spinner size={16} /> : <Zap size={16} />}
-          {isRunning ? 'Running…' : isDone ? 'Re-run Sweep' : 'Run Complexity Sweep'}
+          {launching ? <Spinner size={15} /> : <Zap size={15} />}
+          {isRunning ? 'Sweep In Progress…' : isDone ? 'Re-run Complexity Sweep' : 'Run Complexity Sweep'}
         </button>
       </div>
 
       {/* ── Progress Area ── */}
-      <AnimatePresence>
-        {job && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
-          >
-            {/* Progress bar */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                  {job.current_description || `${job.status}…`}
-                </div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.875rem', fontWeight: 700,
-                  color: isDone ? 'var(--success)' : 'var(--primary)' }}>
-                  {job.progress_pct}%
-                </div>
+      {job && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
+          {/* Progress bar */}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                {job.current_description || `${job.status}…`}
               </div>
-              <div className="progress-bar" style={{ height: 8 }}>
-                <div className="progress-fill" style={{
-                  width: `${job.progress_pct}%`,
-                  transition: 'width 0.6s ease',
-                  background: isDone
-                    ? 'linear-gradient(90deg, var(--success), #34d399)'
-                    : 'linear-gradient(90deg, var(--primary), var(--primary-light))',
-                }} />
-              </div>
-              <div style={{ marginTop: 4, fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                {job.completed_steps} / {job.total_steps} benchmarks completed
-                {job.status === 'completed' && (
-                  <span style={{ color: 'var(--success)', marginLeft: 8 }}>✓ Done</span>
-                )}
+              <div style={{
+                fontFamily: 'var(--font-mono)', fontSize: '0.875rem', fontWeight: 700,
+                color: isDone ? 'var(--success)' : 'var(--primary-light)'
+              }}>
+                {job.progress_pct}%
               </div>
             </div>
+            <div className="progress-bar" style={{ height: 6 }}>
+              <div className="progress-fill" style={{
+                width: `${job.progress_pct}%`,
+                background: isDone ? 'var(--success)' : 'var(--primary)',
+              }} />
+            </div>
+            <div style={{ marginTop: 4, fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+              {job.completed_steps} / {job.total_steps} benchmark steps completed
+              {job.status === 'completed' && (
+                <span style={{ color: 'var(--success)', marginLeft: 8, fontWeight: 600 }}>✓ Complete</span>
+              )}
+            </div>
+          </div>
 
-            {/* Step Matrix */}
-            <StepMatrix
-              steps={job.steps}
-              algorithms={job.algorithms}
-              sizes={job.sizes}
-            />
+          {/* Step Matrix */}
+          <StepMatrix
+            steps={job.steps}
+            algorithms={job.algorithms}
+            sizes={job.sizes}
+          />
 
-            {/* Fitness Chips (real-time) */}
-            {Object.keys(job.analyses ?? {}).length > 0 && (
-              <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Live Fitness Scores
-                </div>
-                <FitnessChips analyses={job.analyses} />
+          {/* Fitness Chips */}
+          {Object.keys(job.analyses ?? {}).length > 0 && (
+            <div>
+              <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Empirical Curve Fitness
               </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <FitnessChips analyses={job.analyses} />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

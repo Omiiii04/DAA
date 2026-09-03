@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { TrendingUp, RefreshCw, Info, FlaskConical } from 'lucide-react'
+import { TrendingUp, RefreshCw, Info, FlaskConical, ChevronDown, ChevronUp } from 'lucide-react'
 import { getDashboardComplexity } from '../api/dashboard'
 import ComplexityChart from '../components/charts/ComplexityChart'
 import SweepPanel from '../components/complexity/SweepPanel'
@@ -12,8 +11,8 @@ const COMPLEXITY_REF = [
     expected: '≈ 2.00×',
     color:    '#10b981',
     algo:     "Kadane's Algorithm",
-    proof:    'T(2n)/T(n) = 2n/n = 2',
-    note:     'Theoretical optimum — single pass, no improvement possible',
+    proof:    'T(2n) / T(n) = 2n / n = 2',
+    note:     'Optimal theoretical lower bound — single linear scan pass',
   },
   {
     label:    'O(N log N)',
@@ -29,7 +28,7 @@ const COMPLEXITY_REF = [
     color:    '#ef4444',
     algo:     'Brute Force',
     proof:    '(2n)² / n² = 4',
-    note:     'Impractical for N > 20K — use only as reference baseline',
+    note:     'Quadratic pairs — safety bounded at N ≤ 20,000',
   },
 ]
 
@@ -38,17 +37,18 @@ export default function ComplexityView() {
   const [loading,     setLoading]     = useState(true)
   const [error,       setError]       = useState(null)
   const [sweepOpen,   setSweepOpen]   = useState(false)
-  const [analyses,    setAnalyses]    = useState(null)  // live from sweep OR from DB
+  const [analyses,    setAnalyses]    = useState(null)
 
   // Load existing DB-backed complexity data
   const loadFromDB = useCallback(() => {
     setLoading(true)
+    setError(null)
     getDashboardComplexity()
       .then((d) => {
         setData(d)
         if (d?.has_data) setAnalyses(d.analyses)
       })
-      .catch((e) => setError(e.message))
+      .catch((e) => setError(e.response?.data?.detail ?? e.message ?? 'Failed to load complexity data.'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -57,10 +57,9 @@ export default function ComplexityView() {
   // When sweep completes, merge live analyses into chart
   const handleSweepComplete = useCallback((liveAnalyses) => {
     setAnalyses(liveAnalyses)
-    // Also re-fetch from DB so chart reflects persisted results
     getDashboardComplexity().then((d) => {
       setData(d)
-    })
+    }).catch(() => {})
   }, [])
 
   const chartAnalyses = analyses ?? (data?.has_data ? data.analyses : {})
@@ -69,202 +68,183 @@ export default function ComplexityView() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-      {/* ── Top Info Banner ── */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="panel panel-info"
-        style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}
-      >
-        <Info size={18} color="var(--info)" style={{ flexShrink: 0, marginTop: 2 }} />
-        <div>
-          <h4 style={{ marginBottom: 4, fontSize: '1rem' }}>
-            Empirical Complexity Analysis — Doubling Method
-          </h4>
-          <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.65 }}>
-            Both axes use a <strong>log scale</strong>. Solid lines = observed timings (normalized to 1.0 at smallest N);
-            dashed = theoretical Big-O curve. The <strong>Fitness Score</strong> quantifies curve alignment using
-            Normalized MAE of consecutive doubling ratios. Use <strong>Run Sweep</strong> to auto-generate datasets
-            at multiple sizes and populate the chart automatically.
-          </p>
-        </div>
-      </motion.div>
+      {/* Header Info */}
+      <div>
+        <h2 style={{ marginBottom: 4 }}>Complexity Visualizer</h2>
+        <p style={{ margin: 0, fontSize: '0.875rem' }}>
+          Evaluate empirical runtime scaling against Big-O theoretical predictions using the doubling method.
+        </p>
+      </div>
 
-      {/* ── Sweep Panel Accordion ── */}
+      {/* Top Banner */}
+      <div className="panel panel-info" style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+        <Info size={16} color="var(--info)" style={{ flexShrink: 0, marginTop: 2 }} />
+        <div style={{ fontSize: '0.8125rem', lineHeight: 1.6 }}>
+          <strong>Empirical Complexity Analysis (Doubling Method):</strong> Solid curves plot observed execution times normalized to the smallest size.
+          Dashed curves depict theoretical growth. The <strong>Fitness Score</strong> quantifies alignment quality via Normalized Mean Absolute Error (NMAE)
+          over consecutive size doublings.
+        </div>
+      </div>
+
+      {/* Sweep Panel Accordion */}
       <div className="card">
         <button
+          type="button"
           onClick={() => setSweepOpen((o) => !o)}
+          aria-expanded={sweepOpen}
+          aria-controls="sweep-panel-body"
+          id="sweep-panel-toggle"
           style={{
             width: '100%',
-            padding: '16px 24px',
+            padding: '14px 20px',
             background: 'none',
             border: 'none',
             borderBottom: sweepOpen ? '1px solid var(--border)' : 'none',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
+            gap: 12,
             textAlign: 'left',
             color: 'var(--text-primary)',
           }}
         >
-          <FlaskConical size={18} color="var(--primary)" />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 700, fontSize: '0.9375rem' }}>Run Automated Complexity Sweep</div>
-            <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 1 }}>
-              Auto-generate GBM datasets at multiple sizes and benchmark all algorithms in one click
+          <FlaskConical size={18} color="var(--primary-light)" />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>Automated Multi-Size Complexity Sweep</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+              Auto-generate GBM datasets across sizes (1K to 100K) and benchmark all three algorithms concurrently
             </div>
           </div>
-          <span style={{
-            fontSize: '0.75rem', color: 'var(--text-muted)',
-            transform: sweepOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s ease',
-            display: 'inline-block',
-          }}>▼</span>
+          {sweepOpen ? <ChevronUp size={16} color="var(--text-muted)" /> : <ChevronDown size={16} color="var(--text-muted)" />}
         </button>
-        <AnimatePresence initial={false}>
-          {sweepOpen && (
-            <motion.div
-              key="sweep-body"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
-              style={{ overflow: 'hidden' }}
-            >
-              <div style={{ padding: '20px 24px 24px' }}>
-                <SweepPanel onSweepComplete={handleSweepComplete} />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
+        {sweepOpen && (
+          <div id="sweep-panel-body" style={{ padding: '20px' }}>
+            <SweepPanel onSweepComplete={handleSweepComplete} />
+          </div>
+        )}
       </div>
 
-      {/* ── Log-Log Chart ── */}
+      {/* Log-Log Growth Chart */}
       <div className="card">
-        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h4>Empirical Complexity Curves</h4>
-            <p style={{ margin: '2px 0 0', fontSize: '0.8125rem' }}>
-              Log-log chart · Normalized growth · Solid = observed · Dashed = theoretical
+            <h4 style={{ margin: 0 }}>Empirical Growth Curves</h4>
+            <p style={{ margin: '2px 0 0', fontSize: '0.78rem' }}>
+              Normalized time vs. dataset size (N) on log-log coordinates
             </p>
           </div>
-          <button className="btn btn-ghost btn-sm btn-icon" onClick={loadFromDB} title="Refresh from DB">
-            <RefreshCw size={14} />
+          <button
+            className="btn btn-ghost btn-sm btn-icon"
+            onClick={loadFromDB}
+            title="Refresh database records"
+            aria-label="Refresh complexity chart"
+          >
+            <RefreshCw size={13} />
           </button>
         </div>
-        <div style={{ padding: '24px' }}>
-          {loading
-            ? <Spinner center label="Loading complexity data…" />
-            : error
-              ? <div className="panel panel-danger">{error}</div>
-              : <ComplexityChart analyses={chartAnalyses} height={460} />
-          }
+        <div style={{ padding: '20px' }}>
+          {loading ? (
+            <Spinner center label="Loading complexity data…" />
+          ) : error ? (
+            <div className="panel panel-danger">{error}</div>
+          ) : (
+            <ComplexityChart analyses={chartAnalyses} height={420} />
+          )}
         </div>
       </div>
 
-      {/* ── No-data warning ── */}
+      {/* No Data Notice */}
       {!loading && !hasData && (
         <div className="panel panel-warning" style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-          <TrendingUp size={18} color="var(--warning)" style={{ flexShrink: 0, marginTop: 2 }} />
+          <TrendingUp size={16} color="var(--warning)" style={{ flexShrink: 0, marginTop: 2 }} />
           <div>
-            <div style={{ fontWeight: 700, marginBottom: 4, fontSize: '0.875rem' }}>
-              No benchmark data to visualize yet
+            <div style={{ fontWeight: 600, marginBottom: 2, fontSize: '0.875rem' }}>
+              Insufficient Benchmark Data for Curve Fitting
             </div>
-            <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.6 }}>
-              Use <strong>Run Automated Complexity Sweep</strong> above, or manually benchmark datasets
-              of at least 2 different sizes on the Benchmark page.
-              Recommended sizes: <code>1K, 5K, 10K, 20K, 50K, 100K</code>.
+            <p style={{ margin: 0, fontSize: '0.8125rem' }}>
+              Run the <strong>Automated Multi-Size Complexity Sweep</strong> above, or manually benchmark at least 2 datasets of different sizes to plot empirical curves.
             </p>
           </div>
         </div>
       )}
 
-      {/* ── Big-O Theory Reference ── */}
+      {/* Theory Reference Grid */}
       <div>
-        <h4 style={{ marginBottom: 16 }}>Big-O Theory Reference</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-          {COMPLEXITY_REF.map((item, i) => (
-            <motion.div
+        <h4 style={{ marginBottom: 12 }}>Big-O Theoretical Reference</h4>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+          {COMPLEXITY_REF.map((item) => (
+            <div
               key={item.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
               style={{
                 background: 'var(--bg-surface-2)',
-                border: `1px solid ${item.color}25`,
-                borderRadius: 'var(--radius-lg)',
-                padding: 20,
+                border: '1px solid var(--border)',
+                borderLeft: `3px solid ${item.color}`,
+                borderRadius: 'var(--radius)',
+                padding: '16px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <span style={{
                   fontFamily: 'var(--font-mono)', fontWeight: 800,
                   fontSize: '1rem', color: item.color,
                 }}>{item.label}</span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>— {item.algo}</span>
               </div>
-              <div style={{ marginBottom: 8 }}>
+              <div style={{ marginBottom: 6 }}>
                 <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
-                  Expected Doubling Ratio
+                  Expected Doubling Growth Ratio
                 </span>
                 <div style={{
-                  fontFamily: 'var(--font-mono)', fontWeight: 800,
-                  fontSize: '1.25rem', color: item.color,
-                }}>R {item.expected}</div>
+                  fontFamily: 'var(--font-mono)', fontWeight: 700,
+                  fontSize: '1.1rem', color: item.color,
+                }}>
+                  R(2n) {item.expected}
+                </div>
               </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-muted)', background: `${item.color}08`, padding: '6px 10px', borderRadius: 'var(--radius-sm)', marginBottom: 8 }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-3)', padding: '6px 10px', borderRadius: 'var(--radius-sm)', marginBottom: 6 }}>
                 {item.proof}
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>{item.note}</div>
-            </motion.div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                {item.note}
+              </div>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* ── Fitness Score Explainer ── */}
+      {/* Fitness Formula Card */}
       <div className="card">
-        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)' }}>
-          <h4>Fitness Score — Formal Definition</h4>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
+          <h4 style={{ margin: 0 }}>Mathematical Fitness Metric</h4>
         </div>
-        <div style={{ padding: '20px 24px', fontSize: '0.9rem', lineHeight: 1.8 }}>
-          <p style={{ margin: '0 0 12px' }}>
-            The <strong>Fitness Score</strong> is computed as:
+        <div style={{ padding: '18px 20px', fontSize: '0.875rem' }}>
+          <p style={{ margin: '0 0 10px', color: 'var(--text-secondary)' }}>
+            The <strong>Big-O Fitness Score</strong> evaluates how closely the empirical runtime doubling ratios match mathematical theoretical ratios:
           </p>
           <div style={{
-            fontFamily: 'var(--font-mono)', fontSize: '0.875rem',
+            fontFamily: 'var(--font-mono)', fontSize: '0.8125rem',
             background: 'var(--bg-surface-2)', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)', padding: '14px 16px', marginBottom: 16,
+            borderRadius: 'var(--radius)', padding: '10px 14px', marginBottom: 12,
             color: 'var(--primary-light)',
           }}>
-            fitness = 1 − NMAE(observed_ratios, theoretical_ratios)
+            fitness = 1 − NMAE(R_observed, R_theoretical)
           </div>
-          <p style={{ margin: '0 0 8px' }}>
-            Where the doubling ratio at size index <em>i</em> is:
-          </p>
-          <div style={{
-            fontFamily: 'var(--font-mono)', fontSize: '0.875rem',
-            background: 'var(--bg-surface-2)', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)', padding: '14px 16px', marginBottom: 16,
-            color: 'var(--info)',
-          }}>
-            R[i] = T(sizes[i]) / T(sizes[i-1])
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
             {[
-              { range: '90–100%', label: 'Excellent',   color: 'var(--success)', desc: 'Perfect curve alignment' },
-              { range: '70–90%',  label: 'Good',        color: 'var(--info)',    desc: 'Minor cache/branch effects' },
-              { range: '< 70%',   label: 'Investigate', color: 'var(--warning)', desc: 'Possible misclassification' },
+              { range: '≥ 90%', label: 'High Alignment',  color: 'var(--success)', desc: 'Empirical data matches theoretical Big-O' },
+              { range: '70–89%', label: 'Moderate',       color: 'var(--info)',    desc: 'Minor CPU throttling or cache effects' },
+              { range: '< 70%',  label: 'Sub-Optimal',    color: 'var(--warning)', desc: 'Higher noise or small sample size' },
             ].map((item) => (
               <div key={item.range} style={{
                 background: 'var(--bg-surface-2)', borderRadius: 'var(--radius)',
-                padding: '12px 14px', border: '1px solid var(--border)',
+                padding: '10px 12px', border: '1px solid var(--border)',
               }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: item.color, marginBottom: 4 }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: item.color, fontSize: '0.9rem' }}>
                   {item.range}
                 </div>
-                <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: 2 }}>{item.label}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.desc}</div>
+                <div style={{ fontWeight: 600, fontSize: '0.8125rem', margin: '2px 0' }}>{item.label}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{item.desc}</div>
               </div>
             ))}
           </div>

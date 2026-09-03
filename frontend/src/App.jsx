@@ -15,19 +15,24 @@ import client          from './api/client'
  * Checks API health on mount and passes `apiOnline` to PageLayout → Sidebar.
  */
 export default function App() {
-  const [apiOnline, setApiOnline] = useState(null)   // null = checking
+  const [apiOnline, setApiOnline] = useState(null) // null = checking, true = online, false = offline
 
   useEffect(() => {
-    client.get('/health')
-      .then(() => setApiOnline(true))
-      .catch(() => setApiOnline(false))
-    // Re-check every 30s
-    const id = setInterval(() => {
+    let isMounted = true
+
+    const checkHealth = () => {
       client.get('/health')
-        .then(() => setApiOnline(true))
-        .catch(() => setApiOnline(false))
-    }, 30_000)
-    return () => clearInterval(id)
+        .then(() => { if (isMounted) setApiOnline(true) })
+        .catch(() => { if (isMounted) setApiOnline(false) })
+    }
+
+    checkHealth()
+    const id = setInterval(checkHealth, 30_000)
+
+    return () => {
+      isMounted = false
+      clearInterval(id)
+    }
   }, [])
 
   return (
