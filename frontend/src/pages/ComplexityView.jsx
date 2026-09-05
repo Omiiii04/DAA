@@ -9,7 +9,7 @@ const COMPLEXITY_REF = [
   {
     label:    'O(N)',
     expected: '≈ 2.00×',
-    color:    '#10b981',
+    color:    'var(--algo-kadane)',
     algo:     "Kadane's Algorithm",
     proof:    'T(2n) / T(n) = 2n / n = 2',
     note:     'Optimal theoretical lower bound — single linear scan pass',
@@ -17,7 +17,7 @@ const COMPLEXITY_REF = [
   {
     label:    'O(N log N)',
     expected: '≈ 2.05–2.15×',
-    color:    '#f59e0b',
+    color:    'var(--algo-dc)',
     algo:     'Divide & Conquer',
     proof:    '2n·log(2n) / n·log(n) → 2 + 2/log₂(n)',
     note:     'T(n) = 2T(n/2) + O(n) — Master Theorem Case 2',
@@ -25,7 +25,7 @@ const COMPLEXITY_REF = [
   {
     label:    'O(N²)',
     expected: '≈ 4.00×',
-    color:    '#ef4444',
+    color:    'var(--algo-bf)',
     algo:     'Brute Force',
     proof:    '(2n)² / n² = 4',
     note:     'Quadratic pairs — safety bounded at N ≤ 20,000',
@@ -172,40 +172,46 @@ export default function ComplexityView() {
       {/* Theory Reference Grid */}
       <div>
         <h4 style={{ marginBottom: 12 }}>Big-O Theoretical Reference</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
           {COMPLEXITY_REF.map((item) => (
             <div
               key={item.label}
               style={{
-                background: 'var(--bg-surface-2)',
-                border: '1px solid var(--border)',
-                borderLeft: `3px solid ${item.color}`,
-                borderRadius: 'var(--radius)',
-                padding: '16px',
+                background: 'var(--surface)',
+                border: '1px solid var(--card-border)',
+                borderLeft: `4px solid ${item.color}`,
+                borderRadius: 'var(--radius-sm)',
+                boxShadow: 'var(--shadow-raised-sm)',
+                padding: '18px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <span style={{
                   fontFamily: 'var(--font-mono)', fontWeight: 800,
-                  fontSize: '1rem', color: item.color,
+                  fontSize: '1.05rem', color: item.color,
                 }}>{item.label}</span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>— {item.algo}</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>— {item.algo}</span>
               </div>
-              <div style={{ marginBottom: 6 }}>
-                <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
+              <div style={{ marginBottom: 8 }}>
+                <span style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', fontWeight: 600 }}>
                   Expected Doubling Growth Ratio
                 </span>
                 <div style={{
-                  fontFamily: 'var(--font-mono)', fontWeight: 700,
-                  fontSize: '1.1rem', color: item.color,
+                  fontFamily: 'var(--font-mono)', fontWeight: 800,
+                  fontSize: '1.2rem', color: item.color, marginTop: 2,
                 }}>
                   R(2n) {item.expected}
                 </div>
               </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-3)', padding: '6px 10px', borderRadius: 'var(--radius-sm)', marginBottom: 6 }}>
+              <div style={{
+                fontFamily: 'var(--font-mono)', fontSize: '0.75rem',
+                color: 'var(--text-primary)', background: 'var(--surface-well)',
+                boxShadow: 'var(--shadow-inset)', border: '1px solid var(--input-border)',
+                padding: '8px 12px', borderRadius: 'var(--radius-xs)', marginBottom: 8
+              }}>
                 {item.proof}
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                 {item.note}
               </div>
             </div>
@@ -215,36 +221,38 @@ export default function ComplexityView() {
 
       {/* Fitness Formula Card */}
       <div className="card">
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--divider)' }}>
           <h4 style={{ margin: 0 }}>Mathematical Fitness Metric</h4>
         </div>
-        <div style={{ padding: '18px 20px', fontSize: '0.875rem' }}>
-          <p style={{ margin: '0 0 10px', color: 'var(--text-secondary)' }}>
+        <div style={{ padding: '20px', fontSize: '0.875rem' }}>
+          <p style={{ margin: '0 0 12px', color: 'var(--text-secondary)' }}>
             The <strong>Big-O Fitness Score</strong> evaluates how closely the empirical runtime doubling ratios match mathematical theoretical ratios:
           </p>
           <div style={{
-            fontFamily: 'var(--font-mono)', fontSize: '0.8125rem',
-            background: 'var(--bg-surface-2)', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)', padding: '10px 14px', marginBottom: 12,
-            color: 'var(--primary-light)',
+            fontFamily: 'var(--font-mono)', fontSize: '0.875rem', fontWeight: 600,
+            background: 'var(--surface)', border: '1px solid var(--input-border)',
+            boxShadow: 'var(--shadow-inset)',
+            borderRadius: 'var(--radius-sm)', padding: '12px 16px', marginBottom: 16,
+            color: 'var(--accent)',
           }}>
             fitness = 1 − NMAE(R_observed, R_theoretical)
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
             {[
               { range: '≥ 90%', label: 'High Alignment',  color: 'var(--success)', desc: 'Empirical data matches theoretical Big-O' },
               { range: '70–89%', label: 'Moderate',       color: 'var(--info)',    desc: 'Minor CPU throttling or cache effects' },
               { range: '< 70%',  label: 'Sub-Optimal',    color: 'var(--warning)', desc: 'Higher noise or small sample size' },
             ].map((item) => (
               <div key={item.range} style={{
-                background: 'var(--bg-surface-2)', borderRadius: 'var(--radius)',
-                padding: '10px 12px', border: '1px solid var(--border)',
+                background: 'var(--surface)', borderRadius: 'var(--radius-sm)',
+                padding: '12px 16px', border: '1px solid var(--card-border)',
+                boxShadow: 'var(--shadow-raised-sm)',
               }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: item.color, fontSize: '0.9rem' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, color: item.color, fontSize: '0.95rem' }}>
                   {item.range}
                 </div>
-                <div style={{ fontWeight: 600, fontSize: '0.8125rem', margin: '2px 0' }}>{item.label}</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{item.desc}</div>
+                <div style={{ fontWeight: 700, fontSize: '0.8125rem', margin: '3px 0' }}>{item.label}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.desc}</div>
               </div>
             ))}
           </div>

@@ -117,7 +117,7 @@ function GenerateForm({ onGenerated }) {
       <div className="form-group">
         <label htmlFor="gen-size" className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
           <span>Dataset Size (N)</span>
-          <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--primary-light)', fontWeight: 600 }}>
+          <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 700 }}>
             {Number(form.size).toLocaleString()} points
           </span>
         </label>
@@ -353,7 +353,7 @@ function UploadZone({ onUploaded }) {
 
       {file && validation?.is_valid && (
         <button
-          className="btn btn-success"
+          className="btn btn-primary"
           onClick={handleUpload}
           disabled={loading}
           style={{ alignSelf: 'flex-start' }}
@@ -456,14 +456,14 @@ function DatasetList({ refresh }) {
                   {ds.created_at ? new Date(ds.created_at).toLocaleDateString() : '—'}
                 </td>
                 <td>
-                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                     <button
-                      className="btn btn-ghost btn-sm btn-icon"
+                      className="btn btn-secondary btn-sm btn-icon"
                       title="Analyze dataset"
                       aria-label={`Analyze ${ds.name}`}
                       onClick={() => navigate(`/analyze?dataset_id=${ds.id}`)}
                     >
-                      <ExternalLink size={13} />
+                      <ExternalLink size={15} />
                     </button>
                     <button
                       className="btn btn-danger btn-sm btn-icon"
@@ -471,7 +471,7 @@ function DatasetList({ refresh }) {
                       aria-label={`Delete ${ds.name}`}
                       onClick={() => handleDelete(ds.id, ds.name)}
                     >
-                      <Trash2 size={13} />
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </td>
@@ -483,9 +483,9 @@ function DatasetList({ refresh }) {
 
       {/* Pagination Controls */}
       {data.total > 10 && (
-        <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: 'center', alignItems: 'center' }}>
           <button
-            className="btn btn-ghost btn-sm"
+            className="btn btn-secondary btn-sm"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
@@ -495,7 +495,7 @@ function DatasetList({ refresh }) {
             Page {page} of {totalPages}
           </span>
           <button
-            className="btn btn-ghost btn-sm"
+            className="btn btn-secondary btn-sm"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
@@ -529,22 +529,15 @@ export default function DatasetManager() {
       </div>
 
       {/* Tab Switcher */}
-      <div style={{
-        display: 'flex',
-        gap: 4,
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius)',
-        padding: 4,
-        alignSelf: 'flex-start',
-      }}>
+      <div className="segmented-control" role="tablist">
         {tabs.map((t) => (
           <button
             key={t.id}
             type="button"
+            role="tab"
+            aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`btn btn-sm ${tab === t.id ? 'btn-primary' : 'btn-ghost'}`}
-            style={{ borderRadius: 6, border: 'none' }}
+            className={`segmented-item ${tab === t.id ? 'active' : ''}`}
           >
             {t.label}
           </button>

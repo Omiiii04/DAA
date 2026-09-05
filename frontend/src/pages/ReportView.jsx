@@ -29,7 +29,7 @@ const SECTION_INFO = [
   {
     key: 'has_benchmark',
     icon: BarChart2,
-    color: 'var(--primary-light)',
+    color: 'var(--accent)',
     label: 'Benchmark Stats',
     detail: 'Mean/Median/Min/Max/Std timing, speedup matrix, bar chart',
   },
@@ -58,23 +58,24 @@ function DatasetCard({ ds, onDownload, downloading }) {
     >
       {/* Card Header */}
       <div style={{
-        padding: '14px 18px',
-        borderBottom: '1px solid var(--border)',
+        padding: '16px 20px',
+        borderBottom: '1px solid var(--divider)',
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
+        gap: 14,
       }}>
         <div style={{
-          width: 34, height: 34, borderRadius: 'var(--radius)', flexShrink: 0,
-          background: 'var(--bg-surface-2)',
-          border: '1px solid var(--border-strong)',
+          width: 38, height: 38, borderRadius: 'var(--radius-sm)', flexShrink: 0,
+          background: 'var(--surface)',
+          boxShadow: 'var(--shadow-inset)',
+          border: '1px solid var(--input-border)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Database size={16} color="var(--primary-light)" />
+          <Database size={18} color="var(--accent)" />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
-            fontWeight: 700, fontSize: '0.875rem',
+            fontWeight: 700, fontSize: '0.9375rem',
             color: 'var(--text-primary)',
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
@@ -85,10 +86,10 @@ function DatasetCard({ ds, onDownload, downloading }) {
           </div>
         </div>
         <div style={{
-          background: sectionCount === 3 ? 'var(--success-dim)' : 'var(--bg-surface-2)',
-          border: `1px solid ${sectionCount === 3 ? 'var(--success)' : 'var(--border)'}`,
-          borderRadius: 'var(--radius)', padding: '2px 8px',
-          fontSize: '0.7rem', fontWeight: 600, flexShrink: 0,
+          background: sectionCount === 3 ? 'var(--success-dim)' : 'var(--surface-well)',
+          border: `1px solid ${sectionCount === 3 ? 'var(--success)' : 'var(--divider)'}`,
+          borderRadius: 'var(--radius-xs)', padding: '3px 10px',
+          fontSize: '0.72rem', fontWeight: 600, flexShrink: 0,
           color: sectionCount === 3 ? 'var(--success)' : 'var(--text-secondary)',
         }}>
           {sectionCount} of 3 sections
@@ -96,7 +97,7 @@ function DatasetCard({ ds, onDownload, downloading }) {
       </div>
 
       {/* Section badges */}
-      <div style={{ padding: '10px 18px', display: 'flex', gap: 8, flexWrap: 'wrap', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ padding: '10px 18px', display: 'flex', gap: 8, flexWrap: 'wrap', borderBottom: '1px solid var(--divider)' }}>
         {SECTION_INFO.map(({ key, icon: Icon, color, label, detail }) => {
           const has = Boolean(ds[key])
           return (
@@ -106,9 +107,9 @@ function DatasetCard({ ds, onDownload, downloading }) {
               style={{
                 display: 'flex', alignItems: 'center', gap: 5,
                 padding: '3px 8px',
-                borderRadius: 'var(--radius)',
-                background: has ? 'var(--bg-surface-2)' : 'transparent',
-                border: `1px solid ${has ? 'var(--border-strong)' : 'transparent'}`,
+                borderRadius: 'var(--radius-xs)',
+                background: has ? 'var(--surface-well)' : 'transparent',
+                border: `1px solid ${has ? 'var(--divider-strong)' : 'transparent'}`,
                 opacity: has ? 1 : 0.45,
               }}
             >
@@ -122,7 +123,7 @@ function DatasetCard({ ds, onDownload, downloading }) {
       </div>
 
       {/* Price info + actions */}
-      <div style={{ padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+      <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         {ds.min_price != null && (
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
             Range: <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
@@ -155,7 +156,7 @@ function DatasetCard({ ds, onDownload, downloading }) {
             to="/benchmark"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 4,
-              fontSize: '0.75rem', color: 'var(--primary-light)', textDecoration: 'none',
+              fontSize: '0.75rem', color: 'var(--accent)', textDecoration: 'none',
             }}
           >
             <ExternalLink size={11} /> Benchmark
@@ -191,10 +192,10 @@ function ReportPreview() {
   return (
     <div className="card" style={{ overflow: 'hidden' }}>
       <div style={{
-        padding: '14px 18px', borderBottom: '1px solid var(--border)',
+        padding: '14px 18px', borderBottom: '1px solid var(--divider)',
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
-        <FileText size={16} color="var(--primary-light)" />
+        <FileText size={16} color="var(--accent)" />
         <h4 style={{ margin: 0, fontSize: '0.875rem' }}>Report Outline</h4>
         <span style={{
           marginLeft: 'auto', fontSize: '0.68rem', color: 'var(--text-muted)',
@@ -205,10 +206,11 @@ function ReportPreview() {
         {sections.map((s) => (
           <div key={s.n} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <div style={{
-              width: 22, height: 22, borderRadius: 'var(--radius-sm)', flexShrink: 0,
-              background: 'var(--bg-surface-2)', border: '1px solid var(--border-strong)',
+              width: 24, height: 24, borderRadius: 'var(--radius-xs)', flexShrink: 0,
+              background: 'var(--surface)', boxShadow: 'var(--shadow-inset)',
+              border: '1px solid var(--input-border)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '0.68rem', fontWeight: 700, color: 'var(--primary-light)',
+              fontSize: '0.68rem', fontWeight: 700, color: 'var(--accent)',
             }}>
               {s.n}
             </div>

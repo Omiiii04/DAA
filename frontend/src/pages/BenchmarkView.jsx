@@ -8,9 +8,9 @@ import Spinner from '../components/common/Spinner'
 import { ComplexityBadge } from '../components/common/Badge'
 
 const ALGO_COLORS = {
-  'Brute Force':        '#ef4444',
-  'Divide & Conquer':   '#f59e0b',
-  "Kadane's Algorithm": '#10b981',
+  'Brute Force':        'var(--algo-bf)',
+  'Divide & Conquer':   'var(--algo-dc)',
+  "Kadane's Algorithm": 'var(--algo-kadane)',
 }
 
 // ── Dataset Selector ───────────────────────────────────────────────────────────
@@ -54,32 +54,37 @@ function PollingProgress({ job }) {
   return (
     <div className="panel" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* Step indicators */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        {statusSteps.map((s, i) => (
-          <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{
-              width: 22, height: 22, borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: i <= stepIdx ? (s === 'completed' ? 'var(--success-dim)' : 'var(--primary-dim)') : 'var(--bg-surface-3)',
-              border: `1.5px solid ${i <= stepIdx ? (s === 'completed' ? 'var(--success)' : 'var(--primary)') : 'var(--border)'}`,
-              fontSize: '0.68rem', fontWeight: 700,
-              color: i <= stepIdx ? (s === 'completed' ? 'var(--success)' : 'var(--primary-light)') : 'var(--text-muted)',
-            }}>
-              {i < stepIdx || job.status === 'completed' ? '✓' : i + 1}
-            </div>
-            <span style={{
-              fontSize: '0.75rem', fontWeight: 600,
-              color: i <= stepIdx ? 'var(--text-primary)' : 'var(--text-muted)',
-              textTransform: 'capitalize',
-            }}>{s}</span>
-            {i < statusSteps.length - 1 && (
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        {statusSteps.map((s, i) => {
+          const isPassed = i < stepIdx || job.status === 'completed'
+          const isCurrent = i === stepIdx
+          return (
+            <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{
-                width: 20, height: 2,
-                background: i < stepIdx ? 'var(--primary)' : 'var(--border)',
-              }} />
-            )}
-          </div>
-        ))}
+                width: 26, height: 26, borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: isPassed ? 'var(--success)' : isCurrent ? 'var(--accent)' : 'var(--surface)',
+                boxShadow: isPassed || isCurrent ? 'var(--shadow-raised-sm)' : 'var(--shadow-inset)',
+                border: isPassed || isCurrent ? 'none' : '1px solid var(--input-border)',
+                fontSize: '0.75rem', fontWeight: 700,
+                color: isPassed ? '#FFFFFF' : isCurrent ? 'var(--accent-ink)' : 'var(--text-muted)',
+              }}>
+                {isPassed ? '✓' : i + 1}
+              </div>
+              <span style={{
+                fontSize: '0.8125rem', fontWeight: isCurrent || isPassed ? 700 : 500,
+                color: isCurrent ? 'var(--accent)' : isPassed ? 'var(--success)' : 'var(--text-muted)',
+                textTransform: 'capitalize',
+              }}>{s}</span>
+              {i < statusSteps.length - 1 && (
+                <div style={{
+                  width: 24, height: 2,
+                  background: i < stepIdx ? 'var(--success)' : 'var(--divider)',
+                }} />
+              )}
+            </div>
+          )
+        })}
         {job.status === 'failed' && (
           <span className="badge badge-danger" style={{ marginLeft: 8 }}>Failed</span>
         )}
@@ -88,8 +93,8 @@ function PollingProgress({ job }) {
       {/* Animated running indicator */}
       {job.status === 'running' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Spinner size={16} />
-          <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+          <Spinner size={18} />
+          <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
             {job.progress_message ?? 'Running 10-iteration statistical benchmark…'}
           </span>
         </div>
@@ -99,14 +104,14 @@ function PollingProgress({ job }) {
       {job.created_at && (
         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
           <span>Job ID: <code style={{ color: 'var(--text-secondary)' }}>{job.job_id?.slice(0, 12)}…</code></span>
-          <span>N = <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>{job.dataset_size?.toLocaleString()}</span></span>
+          <span>N = <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', fontWeight: 600 }}>{job.dataset_size?.toLocaleString()}</span></span>
           {job.cached && <span className="badge badge-info">Cache Hit</span>}
         </div>
       )}
 
       {job.error && (
         <div className="panel panel-danger" style={{ fontSize: '0.8125rem' }}>
-          <AlertCircle size={13} style={{ display: 'inline', marginRight: 6 }} />
+          <AlertCircle size={14} style={{ display: 'inline', marginRight: 6 }} />
           {job.error}
         </div>
       )}
@@ -135,7 +140,7 @@ function StatsTable({ report }) {
         </thead>
         <tbody>
           {Object.entries(report.stats).map(([name, s]) => {
-            const color = ALGO_COLORS[name] ?? 'var(--primary)'
+            const color = ALGO_COLORS[name] ?? 'var(--accent)'
             const toMs = (v) => typeof v === 'number' ? (v * 1000).toFixed(4) : '—'
             return (
               <tr key={name}>
@@ -170,54 +175,57 @@ function SpeedupSummary({ report }) {
   if (!bf) return null
 
   return (
-    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 14 }}>
+    <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 16 }}>
       {dc && (
         <div style={{
-          background: 'var(--bg-surface-2)',
-          border: '1px solid var(--border)',
-          borderLeft: '3px solid #f59e0b',
-          borderRadius: 'var(--radius)',
-          padding: '8px 14px',
-          flex: '1 1 180px',
+          background: 'var(--surface)',
+          border: '1px solid var(--card-border)',
+          borderLeft: '4px solid var(--algo-dc)',
+          borderRadius: 'var(--radius-sm)',
+          boxShadow: 'var(--shadow-raised-sm)',
+          padding: '12px 16px',
+          flex: '1 1 200px',
         }}>
-          <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', fontWeight: 600 }}>
             D&C Speedup vs BF
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.25rem', color: '#fcd34d' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.35rem', color: 'var(--algo-dc)', marginTop: 2 }}>
             {(bf / dc).toFixed(1)}× faster
           </div>
         </div>
       )}
       {kad && (
         <div style={{
-          background: 'var(--bg-surface-2)',
-          border: '1px solid var(--border)',
-          borderLeft: '3px solid #10b981',
-          borderRadius: 'var(--radius)',
-          padding: '8px 14px',
-          flex: '1 1 180px',
+          background: 'var(--surface)',
+          border: '1px solid var(--card-border)',
+          borderLeft: '4px solid var(--algo-kadane)',
+          borderRadius: 'var(--radius-sm)',
+          boxShadow: 'var(--shadow-raised-sm)',
+          padding: '12px 16px',
+          flex: '1 1 200px',
         }}>
-          <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', fontWeight: 600 }}>
             Kadane Speedup vs BF
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.25rem', color: 'var(--success)' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.35rem', color: 'var(--algo-kadane)', marginTop: 2 }}>
             {(bf / kad).toFixed(1)}× faster
           </div>
         </div>
       )}
       {dc && kad && (
         <div style={{
-          background: 'var(--bg-surface-2)',
-          border: '1px solid var(--border)',
-          borderLeft: '3px solid #38bdf8',
-          borderRadius: 'var(--radius)',
-          padding: '8px 14px',
-          flex: '1 1 180px',
+          background: 'var(--surface)',
+          border: '1px solid var(--card-border)',
+          borderLeft: '4px solid var(--info)',
+          borderRadius: 'var(--radius-sm)',
+          boxShadow: 'var(--shadow-raised-sm)',
+          padding: '12px 16px',
+          flex: '1 1 200px',
         }}>
-          <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', fontWeight: 600 }}>
             Kadane vs D&C
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.25rem', color: 'var(--info)' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.35rem', color: 'var(--info)', marginTop: 2 }}>
             {(dc / kad).toFixed(1)}× faster
           </div>
         </div>
@@ -294,7 +302,6 @@ export default function BenchmarkView() {
             className="btn btn-primary btn-lg"
             onClick={handleLaunch}
             disabled={!datasetId || launching || (job?.status === 'running' || job?.status === 'queued')}
-            style={{ height: 38 }}
           >
             {launching ? <Spinner size={16} /> : <Play size={16} />}
             {launching ? 'Queuing benchmark…' : 'Run Benchmark'}

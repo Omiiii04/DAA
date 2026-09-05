@@ -13,7 +13,7 @@ export default function PageLayout({ apiOnline }) {
   }, [location.pathname])
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-base)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
       {/* Sidebar (fixed desktop, drawer mobile) */}
       <Sidebar
         apiOnline={apiOnline}
@@ -37,12 +37,12 @@ export default function PageLayout({ apiOnline }) {
           isMobileMenuOpen={mobileMenuOpen}
         />
 
-        <main id="main-content" style={{ flex: 1, overflowY: 'auto' }}>
+        <main id="main-content" tabIndex={-1} style={{ flex: 1, overflowY: 'auto', outline: 'none' }}>
           <div
             className="page-content-container"
             style={{
-              padding: '24px',
-              maxWidth: 1360,
+              padding: '28px 24px',
+              maxWidth: 1380,
               margin: '0 auto',
               width: '100%',
             }}

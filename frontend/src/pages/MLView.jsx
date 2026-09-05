@@ -104,33 +104,36 @@ function ModelCard({ model, selected, onSelect }) {
       onClick={() => onSelect(model)}
       aria-pressed={isSelected}
       style={{
-        display: 'flex', flexDirection: 'column', gap: 10, textAlign: 'left',
-        padding: '14px', borderRadius: 'var(--radius)', cursor: 'pointer',
-        background: isSelected ? 'var(--bg-surface-3)' : 'var(--bg-surface-2)',
-        border: `1.5px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}`,
+        display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left',
+        padding: '16px', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+        background: 'var(--surface)',
+        boxShadow: isSelected ? 'var(--shadow-inset)' : 'var(--shadow-raised-sm)',
+        border: `1px solid ${isSelected ? 'var(--accent)' : 'var(--card-border)'}`,
         borderLeft: `4px solid ${model.color}`,
-        transition: 'background-color var(--transition-fast), border-color var(--transition-fast)',
+        transition: 'all var(--transition-fast)',
         width: '100%',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{
-          width: 32, height: 32, borderRadius: 'var(--radius)', flexShrink: 0,
-          background: 'var(--bg-surface)', border: '1px solid var(--border-strong)',
+          width: 36, height: 36, borderRadius: 'var(--radius-xs)', flexShrink: 0,
+          background: 'var(--surface)',
+          boxShadow: isSelected ? 'var(--shadow-raised-sm)' : 'var(--shadow-inset)',
+          border: '1px solid var(--input-border)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Icon size={16} color={model.color} />
+          <Icon size={18} color={model.color} />
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--text-primary)', lineHeight: 1.2 }}>
+          <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--text-primary)', lineHeight: 1.2 }}>
             {model.display_name}
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: model.color, marginTop: 1 }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: model.color, marginTop: 2, fontWeight: 600 }}>
             {model.algorithm}
           </div>
         </div>
       </div>
-      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
         {model.description}
       </div>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 'auto' }}>
@@ -593,11 +596,11 @@ export default function MLView() {
 
           {/* Step 1: Model Selection */}
           <div className="card">
-            <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 8, alignItems: 'center' }}>
-              <Brain size={15} color="var(--primary-light)" />
-              <h4 style={{ margin: 0, fontSize: '0.875rem' }}>Step 1 — Choose Model Architecture</h4>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--divider)', display: 'flex', gap: 10, alignItems: 'center' }}>
+              <Brain size={18} color="var(--accent)" />
+              <h4 style={{ margin: 0, fontSize: '0.9375rem' }}>Step 1 — Choose Model Architecture</h4>
             </div>
-            <div className="ml-models-grid" style={{ padding: '14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+            <div className="ml-models-grid" style={{ padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
               {models.map((m) => (
                 <ModelCard
                   key={m.name} model={m}
@@ -615,9 +618,9 @@ export default function MLView() {
           {/* Step 2: Dataset + Hyperparameters */}
           {selectedModel && (
             <div className="card">
-              <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 8, alignItems: 'center' }}>
-                <FlaskConical size={15} color="var(--primary-light)" />
-                <h4 style={{ margin: 0, fontSize: '0.875rem' }}>Step 2 — Configure Training Dataset & Hyperparameters</h4>
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--divider)', display: 'flex', gap: 10, alignItems: 'center' }}>
+                <FlaskConical size={18} color="var(--accent)" />
+                <h4 style={{ margin: 0, fontSize: '0.9375rem' }}>Step 2 — Configure Training Dataset &amp; Hyperparameters</h4>
               </div>
               <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
@@ -749,21 +752,22 @@ export default function MLView() {
 
           {/* Model complexity summary card */}
           <div style={{
-            marginTop: 14, padding: '14px 16px',
-            background: 'var(--bg-surface-2)', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)',
+            marginTop: 16, padding: '16px 18px',
+            background: 'var(--surface)', border: '1px solid var(--card-border)',
+            boxShadow: 'var(--shadow-raised-sm)',
+            borderRadius: 'var(--radius-sm)',
           }}>
-            <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
               Model Complexity Reference
             </div>
             {[
-              { name: 'Isolation Forest', complexity: 'O(N·t·log ψ)', color: '#ef4444' },
-              { name: 'K-Means',          complexity: 'O(N·K·I)',      color: '#f59e0b' },
-              { name: 'Gradient Boost',   complexity: 'O(N·M·D)',      color: '#10b981' },
+              { name: 'Isolation Forest', complexity: 'O(N·t·log ψ)', color: 'var(--algo-bf)' },
+              { name: 'K-Means',          complexity: 'O(N·K·I)',      color: 'var(--algo-dc)' },
+              { name: 'Gradient Boost',   complexity: 'O(N·M·D)',      color: 'var(--algo-kadane)' },
             ].map(({ name, complexity, color }) => (
-              <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', marginBottom: 4 }}>
+              <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8125rem', marginBottom: 6 }}>
                 <span style={{ fontWeight: 600, color }}>{name}</span>
-                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', fontSize: '0.7rem' }}>{complexity}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{complexity}</span>
               </div>
             ))}
           </div>

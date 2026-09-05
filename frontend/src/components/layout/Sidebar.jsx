@@ -48,8 +48,9 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
         style={{
           width: 'var(--sidebar-width)',
           height: '100vh',
-          background: 'var(--bg-surface)',
-          borderRight: '1px solid var(--border)',
+          background: 'var(--surface)',
+          borderRight: '1px solid var(--divider)',
+          boxShadow: '2px 0 10px var(--shadow-lo)',
           display: 'flex',
           flexDirection: 'column',
           position: 'fixed',
@@ -58,33 +59,35 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
           zIndex: 100,
           overflowY: 'auto',
           overflowX: 'hidden',
+          transition: 'background-color var(--transition), border-color var(--transition)',
         }}
       >
         {/* Brand Header */}
         <div style={{
           padding: '16px 18px',
-          borderBottom: '1px solid var(--border)',
+          borderBottom: '1px solid var(--divider)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
-              width: 32,
-              height: 32,
-              borderRadius: 'var(--radius)',
-              background: 'var(--primary)',
+              width: 36,
+              height: 36,
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent)',
+              boxShadow: '0 3px 10px var(--accent-shadow)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
             }}>
-              <Activity size={17} color="#fff" />
+              <Activity size={18} color="var(--accent-ink)" />
             </div>
             <div>
               <div style={{
                 fontWeight: 700,
-                fontSize: '0.875rem',
+                fontSize: '0.9375rem',
                 color: 'var(--text-primary)',
                 lineHeight: 1.15,
                 letterSpacing: '-0.01em',
@@ -92,11 +95,11 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
                 Stock Peak
               </div>
               <div style={{
-                fontSize: '0.65rem',
+                fontSize: '0.68rem',
                 color: 'var(--text-muted)',
                 fontWeight: 600,
                 textTransform: 'uppercase',
-                letterSpacing: '0.06em',
+                letterSpacing: '0.07em',
               }}>
                 DAA Analyzer
               </div>
@@ -111,24 +114,24 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
             aria-label="Close menu"
             style={{ display: 'none' }}
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Section Label */}
         <div style={{
-          padding: '16px 18px 6px',
+          padding: '18px 20px 8px',
           fontSize: '0.68rem',
           fontWeight: 700,
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           color: 'var(--text-muted)',
         }}>
-          Modules
+          Navigation Modules
         </div>
 
         {/* Navigation Items */}
-        <nav style={{ flex: 1, padding: '0 8px' }}>
+        <nav style={{ flex: 1, padding: '0 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
           {NAV.map(({ to, icon: Icon, label }) => {
             const active = to === '/'
               ? location.pathname === '/'
@@ -138,25 +141,36 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
                 key={to}
                 to={to}
                 onClick={onClose}
+                className={`sidebar-nav-link ${active ? 'active' : ''}`}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
-                  padding: '8px 12px',
-                  borderRadius: 'var(--radius)',
+                  gap: 12,
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-sm)',
                   textDecoration: 'none',
-                  marginBottom: 3,
-                  fontSize: '0.85rem',
-                  fontWeight: active ? 600 : 500,
-                  color: active ? '#ffffff' : 'var(--text-secondary)',
-                  background: active ? 'var(--primary-dim)' : 'transparent',
-                  border: active ? '1px solid var(--border-active)' : '1px solid transparent',
-                  transition: 'background-color var(--transition-fast), color var(--transition-fast)',
+                  fontSize: '0.875rem',
+                  fontWeight: active ? 700 : 500,
+                  color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                  background: active ? 'var(--surface)' : 'transparent',
+                  boxShadow: active ? 'var(--shadow-inset)' : 'none',
+                  border: active ? '1px solid var(--input-border)' : '1px solid transparent',
+                  minHeight: 44,
+                  transition: 'all var(--transition)',
                 }}
               >
-                <Icon size={16} strokeWidth={active ? 2.2 : 1.8} style={{ color: active ? 'var(--primary-light)' : 'var(--text-muted)' }} />
+                <Icon
+                  size={18}
+                  strokeWidth={active ? 2.4 : 1.9}
+                  style={{
+                    color: active ? 'var(--accent)' : 'var(--text-muted)',
+                    flexShrink: 0,
+                  }}
+                />
                 <span style={{ flex: 1 }}>{label}</span>
-                {active && <ChevronRight size={13} style={{ color: 'var(--primary-light)', opacity: 0.8 }} />}
+                {active && (
+                  <ChevronRight size={14} style={{ color: 'var(--accent)', opacity: 0.9 }} />
+                )}
               </NavLink>
             )
           })}
@@ -164,18 +178,19 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
 
         {/* API Status Footer */}
         <div style={{
-          padding: '14px 16px',
-          borderTop: '1px solid var(--border)',
+          padding: '16px',
+          borderTop: '1px solid var(--divider)',
           marginTop: 'auto',
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            padding: '8px 10px',
-            background: 'var(--bg-surface-2)',
-            borderRadius: 'var(--radius)',
-            border: '1px solid var(--border)',
+            gap: 12,
+            padding: '10px 12px',
+            background: 'var(--surface)',
+            boxShadow: 'var(--shadow-inset)',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--input-border)',
           }}>
             <span
               className={`status-dot ${apiOnline === true ? 'green' : apiOnline === false ? 'red' : 'gray'}`}
@@ -190,15 +205,16 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
                 alignItems: 'center',
                 justifyContent: 'space-between',
               }}>
-                <span>API Status</span>
+                <span>FastAPI Service</span>
                 <span style={{
-                  fontSize: '0.65rem',
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
                   color: apiOnline === true ? 'var(--success)' : apiOnline === false ? 'var(--danger)' : 'var(--text-muted)'
                 }}>
                   {apiOnline === true ? 'Connected' : apiOnline === false ? 'Offline' : 'Checking…'}
                 </span>
               </div>
-              <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: 1 }}>
                 127.0.0.1:8000
               </div>
             </div>
@@ -207,15 +223,20 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
       </aside>
 
       <style>{`
+        .sidebar-nav-link:hover:not(.active) {
+          color: var(--text-primary) !important;
+          background: var(--surface) !important;
+          box-shadow: var(--shadow-raised-sm) !important;
+        }
         @media (max-width: 900px) {
           .app-sidebar {
             transform: translateX(-100%);
-            transition: transform 0.22s ease-in-out;
+            transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: none;
           }
           .app-sidebar.sidebar-open {
             transform: translateX(0);
-            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
+            box-shadow: 6px 0 28px rgba(0, 0, 0, 0.45);
           }
           .sidebar-close-btn {
             display: inline-flex !important;

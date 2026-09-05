@@ -19,14 +19,14 @@ import Spinner from '../common/Spinner'
 const BF_MAX = 20_000
 
 const ALGO_COLORS = {
-  'Brute Force':        '#ef4444',
-  'Divide & Conquer':   '#f59e0b',
-  "Kadane's Algorithm": '#10b981',
+  'Brute Force':        'var(--algo-bf)',
+  'Divide & Conquer':   'var(--algo-dc)',
+  "Kadane's Algorithm": 'var(--algo-kadane)',
 }
 
 const STATUS_ICON = {
   pending:   <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>○</span>,
-  running:   <Loader size={12} style={{ animation: 'spin 1s linear infinite', color: 'var(--primary)' }} />,
+  running:   <Loader size={12} style={{ animation: 'spin 1s linear infinite', color: 'var(--accent)' }} />,
   done:      <CheckCircle size={13} color="var(--success)" />,
   skipped:   <SkipForward size={13} color="var(--text-muted)" />,
   error:     <XCircle size={13} color="var(--danger)" />,
@@ -48,16 +48,18 @@ function SizeToggle({ size, selected, onToggle }) {
       onClick={() => onToggle(size)}
       aria-pressed={selected}
       style={{
-        padding: '6px 12px',
-        borderRadius: 'var(--radius)',
-        border: `1px solid ${selected ? 'var(--primary)' : 'var(--border-strong)'}`,
-        background: selected ? 'var(--primary-dim)' : 'var(--bg-surface-2)',
-        color: selected ? '#ffffff' : 'var(--text-secondary)',
+        padding: '8px 14px',
+        borderRadius: 'var(--radius-sm)',
+        border: `1px solid ${selected ? 'var(--accent)' : 'var(--card-border)'}`,
+        background: 'var(--surface)',
+        boxShadow: selected ? 'var(--shadow-inset)' : 'var(--shadow-raised-sm)',
+        color: selected ? 'var(--accent)' : 'var(--text-secondary)',
         fontFamily: 'var(--font-mono)',
         fontSize: '0.8125rem',
-        fontWeight: selected ? 600 : 400,
+        fontWeight: selected ? 700 : 500,
         cursor: 'pointer',
-        transition: 'background-color var(--transition-fast), border-color var(--transition-fast)',
+        minHeight: 44,
+        transition: 'all var(--transition-fast)',
       }}
     >
       {size >= 1000 ? `${(size / 1000).toFixed(0)}K` : size}
@@ -259,10 +261,10 @@ export default function SweepPanel({ onSweepComplete }) {
           <label className="form-label" style={{ marginBottom: 6, display: 'block' }}>
             Included Algorithms
           </label>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {(config?.algorithms ?? ['Brute Force', 'Divide & Conquer', "Kadane's Algorithm"]).map((algo) => {
               const selected = algorithms.includes(algo)
-              const color = ALGO_COLORS[algo] ?? 'var(--primary)'
+              const color = ALGO_COLORS[algo] ?? 'var(--accent)'
               return (
                 <button
                   key={algo}
@@ -270,15 +272,17 @@ export default function SweepPanel({ onSweepComplete }) {
                   onClick={() => toggleAlgo(algo)}
                   aria-pressed={selected}
                   style={{
-                    padding: '6px 12px',
-                    borderRadius: 'var(--radius)',
-                    border: `1px solid ${selected ? color : 'var(--border-strong)'}`,
-                    background: selected ? 'var(--bg-surface-3)' : 'var(--bg-surface-2)',
-                    color: selected ? color : 'var(--text-muted)',
+                    padding: '8px 16px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: `1px solid ${selected ? color : 'var(--card-border)'}`,
+                    background: 'var(--surface)',
+                    boxShadow: selected ? 'var(--shadow-inset)' : 'var(--shadow-raised-sm)',
+                    color: selected ? color : 'var(--text-secondary)',
                     fontSize: '0.8125rem',
-                    fontWeight: selected ? 600 : 400,
+                    fontWeight: selected ? 700 : 500,
                     cursor: 'pointer',
-                    transition: 'border-color var(--transition-fast), background-color var(--transition-fast)',
+                    minHeight: 44,
+                    transition: 'all var(--transition-fast)',
                   }}
                 >
                   {algo}

@@ -8,23 +8,24 @@ import Spinner from '../components/common/Spinner'
 import { ComplexityBadge } from '../components/common/Badge'
 
 const ALGORITHMS = [
-  { name: 'Brute Force',        complexity: 'O(N²)',      color: '#ef4444', limit: 20_000 },
-  { name: 'Divide & Conquer',   complexity: 'O(N log N)', color: '#f59e0b', limit: 100_000 },
-  { name: "Kadane's Algorithm", complexity: 'O(N)',        color: '#10b981', limit: 1_000_000 },
+  { name: 'Brute Force',        complexity: 'O(N²)',      color: 'var(--algo-bf)', limit: 20_000 },
+  { name: 'Divide & Conquer',   complexity: 'O(N log N)', color: 'var(--algo-dc)', limit: 100_000 },
+  { name: "Kadane's Algorithm", complexity: 'O(N)',        color: 'var(--algo-kadane)', limit: 1_000_000 },
 ]
 
 // ── Result Card per algorithm ──────────────────────────────────────────────────
 function ResultCard({ result }) {
   const algo = ALGORITHMS.find((a) => a.name === result.algorithm_name)
-  const color = algo?.color ?? 'var(--primary)'
+  const color = algo?.color ?? 'var(--accent)'
 
   return (
     <div
       style={{
-        background: 'var(--bg-surface-2)',
-        border: `1px solid var(--border)`,
-        borderTop: `3px solid ${color}`,
-        borderRadius: 'var(--radius-lg)',
+        background: 'var(--surface)',
+        border: `1px solid var(--card-border)`,
+        borderTop: `4px solid ${color}`,
+        borderRadius: 'var(--radius-sm)',
+        boxShadow: 'var(--shadow-raised-sm)',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
@@ -87,9 +88,9 @@ function ResultCard({ result }) {
       </div>
 
       {/* Hold duration */}
-      <div style={{ padding: '8px 14px', background: 'var(--bg-surface)', marginTop: 'auto' }}>
-        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-          Holding period: <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+      <div style={{ padding: '10px 14px', background: 'var(--surface-well)', marginTop: 'auto', borderTop: '1px solid var(--divider)' }}>
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          Holding period: <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', fontWeight: 600 }}>
             {result.sell_index != null && result.buy_index != null
               ? (result.sell_index - result.buy_index).toLocaleString()
               : '—'} days
@@ -139,7 +140,7 @@ function DatasetSelector({ selectedId, onSelect }) {
 // ── Algorithm Selector ─────────────────────────────────────────────────────────
 function AlgorithmSelector({ datasetSize, selectedAlgos, onToggle }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {ALGORITHMS.map((algo) => {
         const tooLarge = datasetSize && datasetSize > algo.limit
         const checked  = selectedAlgos.includes(algo.name)
@@ -149,14 +150,15 @@ function AlgorithmSelector({ datasetSize, selectedAlgos, onToggle }) {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 10,
-              padding: '8px 12px',
-              background: checked && !tooLarge ? 'var(--primary-dim)' : 'var(--bg-surface-2)',
-              border: `1px solid ${checked && !tooLarge ? 'var(--border-active)' : 'var(--border)'}`,
-              borderRadius: 'var(--radius)',
+              gap: 12,
+              padding: '10px 14px',
+              background: 'var(--surface)',
+              boxShadow: checked && !tooLarge ? 'var(--shadow-inset)' : 'var(--shadow-raised-sm)',
+              border: `1px solid ${checked && !tooLarge ? 'var(--accent)' : 'var(--card-border)'}`,
+              borderRadius: 'var(--radius-sm)',
               cursor: tooLarge ? 'not-allowed' : 'pointer',
               opacity: tooLarge ? 0.45 : 1,
-              transition: 'background-color var(--transition-fast), border-color var(--transition-fast)',
+              transition: 'all var(--transition-fast)',
             }}
           >
             <input
@@ -167,7 +169,7 @@ function AlgorithmSelector({ datasetSize, selectedAlgos, onToggle }) {
               onChange={() => !tooLarge && onToggle(algo.name)}
             />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 600, fontSize: '0.8125rem', color: algo.color }}>
+              <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: algo.color }}>
                 {algo.name}
               </div>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>

@@ -5,9 +5,9 @@ import {
 } from 'recharts'
 
 const ALGO_COLORS = {
-  'Brute Force':        '#ef4444',
-  'Divide & Conquer':   '#f59e0b',
-  "Kadane's Algorithm": '#10b981',
+  'Brute Force':        'var(--algo-bf)',
+  'Divide & Conquer':   'var(--algo-dc)',
+  "Kadane's Algorithm": 'var(--algo-kadane)',
 }
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -18,7 +18,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         Index: {typeof label === 'number' ? label.toLocaleString() : label}
       </div>
       {payload.map((p) => (
-        <div key={p.dataKey} style={{ color: p.color, fontFamily: 'var(--font-mono)', fontSize: '0.875rem' }}>
+        <div key={p.dataKey} style={{ color: p.color, fontFamily: 'var(--font-mono)', fontSize: '0.875rem', fontWeight: 600 }}>
           {typeof p.value === 'number' ? `$${p.value.toFixed(2)}` : '—'}
         </div>
       ))}
@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
  * Props:
  *   priceData  — { prices, indices, is_downsampled, original_size, returned_size }
  *   results    — dict of { algorithm_name: SubarrayResultSchema }
- *   height     — chart height in px (default 420)
+ *   height     — chart height in px (default 400)
  */
 export default function PriceChart({ priceData, results, height = 400 }) {
   const chartData = useMemo(() => {
@@ -48,8 +48,9 @@ export default function PriceChart({ priceData, results, height = 400 }) {
       <div style={{
         height, display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: 'var(--text-muted)', fontSize: '0.875rem',
-        background: 'var(--bg-surface-2)', borderRadius: 'var(--radius-lg)',
-        border: '1px dashed var(--border-strong)',
+        background: 'var(--surface)', borderRadius: 'var(--radius-md)',
+        boxShadow: 'var(--shadow-inset)',
+        border: '1px dashed var(--divider-strong)',
         padding: 20,
         textAlign: 'center',
       }}>
@@ -70,113 +71,117 @@ export default function PriceChart({ priceData, results, height = 400 }) {
       {/* LTTB Info Banner */}
       {priceData.is_downsampled && (
         <div className="panel panel-info" style={{ marginBottom: 16, display: 'flex', gap: 8, alignItems: 'center', fontSize: '0.78rem' }}>
-          <span style={{ color: 'var(--info)', fontWeight: 600 }}>LTTB Downsampled:</span>
+          <span style={{ color: 'var(--info)', fontWeight: 700 }}>LTTB Downsampled:</span>
           <span style={{ color: 'var(--text-secondary)' }}>
             Displaying {priceData.returned_size?.toLocaleString()} visual points from {priceData.original_size?.toLocaleString()} total. Exact peaks and troughs preserved.
           </span>
         </div>
       )}
 
-      <div style={{ width: '100%', height, minHeight: 280 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-            <XAxis
-              dataKey="x"
-              type="number"
-              domain={['dataMin', 'dataMax']}
-              tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)}
-              stroke="var(--text-muted)"
-              tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
-              axisLine={{ stroke: 'var(--border-strong)' }}
-              tickLine={false}
-            />
-            <YAxis
-              tickFormatter={(v) => `$${Number(v).toFixed(0)}`}
-              stroke="var(--text-muted)"
-              tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
-              axisLine={{ stroke: 'var(--border-strong)' }}
-              tickLine={false}
-              width={56}
-            />
-            <Tooltip content={<CustomTooltip />} />
-
-            {/* Profit window highlight */}
-            {highlightResult && (
-              <ReferenceArea
-                x1={highlightResult.buy_index}
-                x2={highlightResult.sell_index}
-                fill="rgba(16,185,129,0.08)"
-                stroke="rgba(16,185,129,0.3)"
-                strokeDasharray="4 4"
-                label={{ value: 'Optimal Profit Window', fill: '#10b981', fontSize: 11, position: 'insideTop' }}
+      {/* Flat Reading Surface for Financial Chart Legibility */}
+      <div className="reading-surface" style={{ padding: '16px 12px 12px', borderRadius: 'var(--radius-sm)' }}>
+        <div style={{ width: '100%', height, minHeight: 280 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} />
+              <XAxis
+                dataKey="x"
+                type="number"
+                domain={['dataMin', 'dataMax']}
+                tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)}
+                stroke="var(--chart-axis)"
+                tick={{ fontSize: 11, fill: 'var(--chart-axis)' }}
+                axisLine={{ stroke: 'var(--divider-strong)' }}
+                tickLine={false}
               />
-            )}
+              <YAxis
+                tickFormatter={(v) => `$${Number(v).toFixed(0)}`}
+                stroke="var(--chart-axis)"
+                tick={{ fontSize: 11, fill: 'var(--chart-axis)' }}
+                axisLine={{ stroke: 'var(--divider-strong)' }}
+                tickLine={false}
+                width={56}
+              />
+              <Tooltip content={<CustomTooltip />} />
 
-            {/* Buy/Sell lines */}
-            {highlightResult && (
-              <>
-                <ReferenceLine
-                  x={highlightResult.buy_index}
-                  stroke="#10b981"
-                  strokeDasharray="5 3"
-                  label={{
-                    value: `Buy $${highlightResult.buy_price != null ? highlightResult.buy_price.toFixed(2) : ''}`,
-                    fill: '#10b981', fontSize: 10, position: 'top'
-                  }}
+              {/* Profit window highlight */}
+              {highlightResult && (
+                <ReferenceArea
+                  x1={highlightResult.buy_index}
+                  x2={highlightResult.sell_index}
+                  fill="var(--success-dim)"
+                  stroke="var(--algo-kadane)"
+                  strokeDasharray="4 4"
+                  label={{ value: 'Optimal Profit Window', fill: 'var(--algo-kadane)', fontSize: 11, position: 'insideTop', fontWeight: 600 }}
                 />
-                <ReferenceLine
-                  x={highlightResult.sell_index}
-                  stroke="#ef4444"
-                  strokeDasharray="5 3"
-                  label={{
-                    value: `Sell $${highlightResult.sell_price != null ? highlightResult.sell_price.toFixed(2) : ''}`,
-                    fill: '#ef4444', fontSize: 10, position: 'top'
-                  }}
-                />
-              </>
-            )}
+              )}
 
-            <Line
-              type="monotone"
-              dataKey="price"
-              stroke="var(--primary)"
-              strokeWidth={1.75}
-              dot={false}
-              activeDot={{ r: 4, fill: 'var(--primary)', stroke: '#ffffff', strokeWidth: 2 }}
-              isAnimationActive={chartData.length < 2000}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+              {/* Buy/Sell lines */}
+              {highlightResult && (
+                <>
+                  <ReferenceLine
+                    x={highlightResult.buy_index}
+                    stroke="var(--algo-kadane)"
+                    strokeDasharray="5 3"
+                    label={{
+                      value: `Buy $${highlightResult.buy_price != null ? highlightResult.buy_price.toFixed(2) : ''}`,
+                      fill: 'var(--algo-kadane)', fontSize: 11, position: 'top', fontWeight: 700
+                    }}
+                  />
+                  <ReferenceLine
+                    x={highlightResult.sell_index}
+                    stroke="var(--algo-bf)"
+                    strokeDasharray="5 3"
+                    label={{
+                      value: `Sell $${highlightResult.sell_price != null ? highlightResult.sell_price.toFixed(2) : ''}`,
+                      fill: 'var(--algo-bf)', fontSize: 11, position: 'top', fontWeight: 700
+                    }}
+                  />
+                </>
+              )}
+
+              <Line
+                type="monotone"
+                dataKey="price"
+                stroke="var(--accent)"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 5, fill: 'var(--accent)', stroke: 'var(--surface-flat)', strokeWidth: 2 }}
+                isAnimationActive={chartData.length < 2000}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Algorithm result summary cards */}
       {results && Object.keys(results).length > 0 && (
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--divider)' }}>
           {Object.entries(results).map(([name, r]) => {
-            const color = ALGO_COLORS[name] ?? 'var(--primary)'
+            const color = ALGO_COLORS[name] ?? 'var(--accent)'
             return (
               <div key={name} style={{
-                background: 'var(--bg-surface-2)',
-                border: `1px solid var(--border)`,
-                borderLeft: `3px solid ${color}`,
-                borderRadius: 'var(--radius)',
-                padding: '8px 14px',
+                background: 'var(--surface)',
+                border: `1px solid var(--card-border)`,
+                borderLeft: `4px solid ${color}`,
+                borderRadius: 'var(--radius-sm)',
+                boxShadow: 'var(--shadow-raised-sm)',
+                padding: '10px 16px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 10,
-                flex: '1 1 180px',
+                gap: 12,
+                flex: '1 1 200px',
               }}>
                 <span style={{
-                  width: 8, height: 8, borderRadius: '50%',
-                  background: color,
+                  width: 10, height: 10, borderRadius: '50%',
+                  background: color, flexShrink: 0,
                 }} />
                 <div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>{name}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>{name}</div>
                   <div style={{
                     fontFamily: 'var(--font-mono)',
-                    fontSize: '0.9375rem',
-                    fontWeight: 700,
+                    fontSize: '1rem',
+                    fontWeight: 800,
                     color,
                   }}>
                     +${typeof r?.max_profit === 'number' ? r.max_profit.toFixed(4) : '0.0000'}

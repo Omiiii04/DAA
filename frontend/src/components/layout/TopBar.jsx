@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import ThemeToggle from './ThemeToggle'
 
 const PAGE_META = {
   '/':           { title: 'Dashboard',             subtitle: 'System overview & recent activity' },
@@ -18,17 +19,20 @@ export default function TopBar({ onMenuToggle, isMobileMenuOpen }) {
   return (
     <header
       role="banner"
+      className="app-topbar"
       style={{
         height: 'var(--topbar-height)',
-        background: 'var(--bg-surface)',
-        borderBottom: '1px solid var(--border)',
+        background: 'var(--surface)',
+        borderBottom: '1px solid var(--divider)',
+        boxShadow: '0 2px 8px var(--shadow-lo)',
         display: 'flex',
         alignItems: 'center',
         padding: '0 20px',
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        gap: 12,
+        gap: 14,
+        transition: 'background-color var(--transition), border-color var(--transition)',
       }}
     >
       {/* Skip to main content link for screen readers */}
@@ -49,18 +53,24 @@ export default function TopBar({ onMenuToggle, isMobileMenuOpen }) {
           flexShrink: 0,
         }}
       >
-        {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+        {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
+      {/* Page Title & Subtitle */}
       <div style={{ minWidth: 0, flex: 1 }}>
-        <h1 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <h1 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, lineHeight: 1.25, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {meta.title}
         </h1>
         {meta.subtitle && (
-          <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {meta.subtitle}
           </p>
         )}
+      </div>
+
+      {/* Accessible Neumorphic Theme Switcher */}
+      <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+        <ThemeToggle />
       </div>
 
       <style>{`
