@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Database, PlayCircle, Timer,
-  TrendingUp, Activity, ChevronRight, FileText, Brain, X
+  TrendingUp, Activity, ChevronRight, FileText, Brain, X, Home
 } from 'lucide-react'
 
 const NAV = [
@@ -17,6 +17,7 @@ const NAV = [
 
 export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
   const location = useLocation()
+  const navigate = useNavigate()
 
   // Close on escape key
   useEffect(() => {
@@ -62,7 +63,7 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
           transition: 'background-color var(--transition), border-color var(--transition)',
         }}
       >
-        {/* Brand Header */}
+        {/* Brand Header — clickable link to landing page */}
         <div style={{
           padding: '16px 18px',
           borderBottom: '1px solid var(--divider)',
@@ -70,7 +71,21 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button
+            type="button"
+            onClick={() => { navigate('/welcome'); onClose && onClose() }}
+            aria-label="Go to landing page"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+              textAlign: 'left',
+            }}
+          >
             <div style={{
               width: 36,
               height: 36,
@@ -104,7 +119,7 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
                 DAA Analyzer
               </div>
             </div>
-          </div>
+          </button>
 
           {/* Close button for mobile */}
           <button
@@ -156,7 +171,7 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
                   boxShadow: active ? 'var(--shadow-inset)' : 'none',
                   border: active ? '1px solid var(--input-border)' : '1px solid transparent',
                   minHeight: 44,
-                  transition: 'all var(--transition)',
+                  transition: 'background-color var(--transition), color var(--transition), box-shadow var(--transition), border-color var(--transition)',
                 }}
               >
                 <Icon
@@ -223,10 +238,13 @@ export default function Sidebar({ apiOnline, isOpen = false, onClose }) {
       </aside>
 
       <style>{`
-        .sidebar-nav-link:hover:not(.active) {
-          color: var(--text-primary) !important;
-          background: var(--surface) !important;
-          box-shadow: var(--shadow-raised-sm) !important;
+        /* Hover guard: only apply on devices that support hover */
+        @media (hover: hover) {
+          .sidebar-nav-link:hover:not(.active) {
+            color: var(--text-primary) !important;
+            background: var(--surface) !important;
+            box-shadow: var(--shadow-raised-sm) !important;
+          }
         }
         @media (max-width: 900px) {
           .app-sidebar {

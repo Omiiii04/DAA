@@ -13,11 +13,27 @@ function getInitialTheme() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+/**
+ * Momentarily suppress all CSS transitions while the theme attribute changes.
+ * Adds `.no-transition` for one animation frame, then removes it.
+ */
+function suppressTransitions() {
+  const el = document.documentElement
+  el.classList.add('no-transition')
+  // Two rAF frames to ensure the browser has applied the new attribute
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.classList.remove('no-transition')
+    })
+  })
+}
+
 export function useTheme() {
   const [theme, setThemeState] = useState(getInitialTheme)
 
   const applyTheme = useCallback((nextTheme) => {
     const valid = nextTheme === 'light' ? 'light' : 'dark'
+    suppressTransitions()
     document.documentElement.setAttribute('data-theme', valid)
     localStorage.setItem(THEME_KEY, valid)
     setThemeState(valid)

@@ -279,6 +279,7 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.25;
   color: var(--text-primary);
   letter-spacing: -0.015em;
+  font-optical-sizing: auto;
 }
 
 h1 { font-size: clamp(1.4rem, 2vw + 0.8rem, 1.875rem); }
@@ -321,9 +322,11 @@ code, pre {
   position: relative;
 }
 
-.card:hover,
-.neumorphic-card:hover {
-  box-shadow: var(--shadow-raised-hover);
+@media (hover: hover) {
+  .card:hover,
+  .neumorphic-card:hover {
+    box-shadow: var(--shadow-raised-hover);
+  }
 }
 
 .card-inner {
@@ -412,15 +415,17 @@ code, pre {
   box-shadow: 0 4px 14px var(--accent-shadow);
   font-weight: 600;
 }
-.btn-primary:hover:not(:disabled) {
-  background: var(--accent-light);
-  box-shadow: 0 6px 18px var(--accent-shadow);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-light);
+    box-shadow: 0 6px 18px var(--accent-shadow);
+    transform: translateY(-1px);
+  }
 }
 .btn-primary:active:not(:disabled) {
   background: var(--accent-dark);
   box-shadow: 0 2px 8px var(--accent-shadow);
-  transform: translateY(1px);
+  transform: translateY(1px) scale(0.96);
 }
 
 /* Neumorphic secondary / tactile raised buttons */
@@ -431,15 +436,17 @@ code, pre {
   border: 1px solid var(--btn-border);
   box-shadow: var(--shadow-raised-sm);
 }
-.btn-secondary:hover:not(:disabled),
-.btn-ghost:hover:not(:disabled) {
-  box-shadow: var(--shadow-raised);
-  color: var(--accent);
+@media (hover: hover) {
+  .btn-secondary:hover:not(:disabled),
+  .btn-ghost:hover:not(:disabled) {
+    box-shadow: var(--shadow-raised);
+    color: var(--accent);
+  }
 }
 .btn-secondary:active:not(:disabled),
 .btn-ghost:active:not(:disabled) {
   box-shadow: var(--shadow-inset);
-  transform: translateY(1px);
+  transform: translateY(1px) scale(0.96);
 }
 
 /* Semantic danger action button */
@@ -449,13 +456,15 @@ code, pre {
   border: 1px solid rgba(239, 68, 68, 0.3);
   box-shadow: var(--shadow-raised-sm);
 }
-.btn-danger:hover:not(:disabled) {
-  background: var(--danger-dim);
-  box-shadow: var(--shadow-raised);
+@media (hover: hover) {
+  .btn-danger:hover:not(:disabled) {
+    background: var(--danger-dim);
+    box-shadow: var(--shadow-raised);
+  }
 }
 .btn-danger:active:not(:disabled) {
   box-shadow: var(--shadow-inset);
-  transform: translateY(1px);
+  transform: translateY(1px) scale(0.96);
 }
 
 /* Success button */
@@ -465,12 +474,14 @@ code, pre {
   border-radius: var(--radius-md);
   box-shadow: 0 4px 14px rgba(4, 120, 87, 0.35);
 }
-.btn-success:hover:not(:disabled) {
-  box-shadow: 0 6px 18px rgba(4, 120, 87, 0.45);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .btn-success:hover:not(:disabled) {
+    box-shadow: 0 6px 18px rgba(4, 120, 87, 0.45);
+    transform: translateY(-1px);
+  }
 }
 .btn-success:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: translateY(1px) scale(0.96);
 }
 
 /* Button sizing */
@@ -833,6 +844,13 @@ code, pre {
 }
 
 /* ── Animations & Reduced Motion ─────────────────────────────────────────── */
+/* -- Theme switch transition suppressor ------------------------------------ */
+html.no-transition *,
+html.no-transition *::before,
+html.no-transition *::after {
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+}
 @keyframes shimmer {
   0%   { background-position: -200% center; }
   100% { background-position:  200% center; }

@@ -1,5 +1,5 @@
-import { useLocation } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Menu, X, Home } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 
 const PAGE_META = {
@@ -14,6 +14,7 @@ const PAGE_META = {
 
 export default function TopBar({ onMenuToggle, isMobileMenuOpen }) {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const meta = PAGE_META[pathname] ?? PAGE_META[Object.keys(PAGE_META).find((k) => k !== '/' && pathname.startsWith(k))] ?? { title: 'Stock Peak Analyzer', subtitle: 'DAA Project' }
 
   return (
@@ -54,6 +55,18 @@ export default function TopBar({ onMenuToggle, isMobileMenuOpen }) {
         }}
       >
         {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {/* Home / Landing page button */}
+      <button
+        type="button"
+        className="btn btn-ghost btn-icon"
+        onClick={() => navigate('/welcome')}
+        aria-label="Go to landing page"
+        title="Home — Landing Page"
+        style={{ flexShrink: 0 }}
+      >
+        <Home size={17} color="currentColor" />
       </button>
 
       {/* Page Title & Subtitle */}

@@ -8,6 +8,7 @@ import BenchmarkView   from './pages/BenchmarkView'
 import ComplexityView  from './pages/ComplexityView'
 import ReportView      from './pages/ReportView'
 import MLView          from './pages/MLView'
+import LandingPage     from './pages/LandingPage'
 import client          from './api/client'
 
 /**
@@ -38,6 +39,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* ── Landing page — standalone, no sidebar layout ── */}
+        <Route path="/welcome" element={<LandingPage />} />
+
+        {/* ── Main app with PageLayout ── */}
         <Route element={<PageLayout apiOnline={apiOnline} />}>
           <Route index              element={<Dashboard />} />
           <Route path="datasets"   element={<DatasetManager />} />
